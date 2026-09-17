@@ -1,0 +1,75 @@
+esphome:
+  name: joystick
+  friendly_name: Joystick
+
+# Replace this with your actual platform if you aren't using ESP32.
+esp32:
+  board: esp32dev
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Joystick Fallback Hotspot"
+    password: !secret fallback_password
+
+captive_portal:
+
+web_server:
+  port: 80
+
+# -------------------------------------------------------------------
+
+# PWM output for the servo
+output:
+  - platform: ledc
+    pin: GPIO27
+    id: pwm_servo
+    frequency: 50Hz
+
+servo:
+  - id: mon_servo
+    output: pwm_servo
+    auto_detach_time: 1s # Cuts servo power after movement to avoid overheating/buzzing
+    transition_length: 0s
+
+# Servo control via the joystick
+sensor:
+  # X axis (VRX), controls the servo
+  - platform: adc
+    pin: GPIO34
+    name: "Joystick X Axis"
+    update_interval: 50ms
+    attenuation: 12db
+    on_value:
+      then:
+        # Converts the read voltage (~0V to 3.3V) into a servo position (-100% to +100%)
+        - servo.write:
+            id: mon_servo
+            level: !lambda 'return (x - 1.65) / 1.65;'
+
+  # Y axis (VRY)
+  - platform: adc
+    pin: GPIO35
+    name: "Joystick Y Axis"
+    update_interval: 100ms
+    attenuation: 12db
+
+binary_sensor:
+  # Push button (SW)
+  - platform: gpio
+    pin:
+      number: GPIO26
+      mode:
+        input: true
+        pullup: true
+    name: "Joystick Click"
