@@ -33,16 +33,6 @@ An ESP32-based project that reads an analog joystick (X/Y axes + push button) an
 - Servo auto-detaches after each movement (`auto_detach_time: 1s`) to avoid overheating or buzzing when idle
 - Local web server enabled on port 80 for quick debugging without Home Assistant
 
-## Setup
-
-1. Go to `esp32-firmware/`.
-2. Copy `secrets.yaml.example` to `secrets.yaml` and fill in your Wi-Fi credentials and a generated API encryption key.
-3. Flash with ESPHome:
-   ```bash
-   esphome run joystick.yaml
-   ```
-4. The device will appear automatically in Home Assistant via the ESPHome integration, exposing the X/Y axis sensors and the button as entities.
-
 ## Calibration note
 
 The X-axis to servo mapping assumes a joystick centered at ~1.65V (half of 3.3V) at rest:
